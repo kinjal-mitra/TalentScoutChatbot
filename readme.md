@@ -122,5 +122,20 @@ Questions progress in difficulty from **basic** to **expert** level, with adapti
 ---
 
 
+# Challenges & Solutions
+
+| Challenge                  | Solution                                                                 
+|-----------------------------|--------------------------------------------------------------------------
+| **Formatting with Streamlit** | Streamlit’s layout made it difficult to clearly display questions and answers. Used `st.container()`, `st.empty()`, and `st.form()` for dynamic updates, plus Markdown and sidebar/columns for cleaner formatting. 
+| **Maintaining Session State** | Needed to remember candidate info, current question, and responses across steps. Leveraged `st.session_state` to persist progress, store answers, and control adaptive question flow without losing context. 
 
 
+# Future Improvements
+
+| Area                         | Potential Enhancement                                                                 
+|-------------------------------|---------------------------------------------------------------------------------------
+| **UI & Styling**              | Add custom CSS or use Streamlit components for more polished layouts and branding.     
+| **Data Persistence**          | Store candidate responses and evaluation logs in a database for long-term tracking. (In Progress)    
+| **Advanced Evaluation**       | Incorporate automated scoring or LLM-based assessment to provide richer feedback.      
+| **Multi-User Support**        | Enable multiple interview sessions in parallel with unique session identifiers.        
+| **Integration with ATS**      | Connect results directly to an Applicant Tracking System (ATS) for recruiter workflow. 
