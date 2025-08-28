@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 from typing import TypedDict, Annotated, Optional, Literal
 from pydantic import BaseModel, Field, EmailStr
-from config import QUESTIONS
+from questions import QUESTIONS
 import streamlit as st
 import time
 
@@ -22,7 +22,8 @@ def get_llm_reply(message_history, next_question):
     # Convert Streamlit's history format into LangChain messages
     messages = [SystemMessage(content="You are a polite HR assistant collecting details for an interview. "
                                       "Be cheerful and appreciative towards the user. "
-                                      "Do not tell me about your thought process")]
+                                      "Do not tell me about your thought process."
+                                      "Do provide any response to the above messages.")]
     for msg in message_history:
         if msg["role"] == "user":
             messages.append(HumanMessage(content=msg["content"]))
@@ -63,31 +64,15 @@ def extract_data_from_session_state(message_history):
     return (result)
 
 #****************************** Streaming Helper ***********************************************
-def stream_llm_response(messages=None, fixed_text=None):
-    """Stream response from LLM or stream a fixed text token-by-token."""
-    response_placeholder = st.empty()
-    full_response = ""
-
-    if fixed_text:  # manual streaming for fixed messages
-        for token in fixed_text.split():
-            full_response += token + " "
-            response_placeholder.markdown(full_response)
-            time.sleep(0.05)  # typing delay
-        return full_response
-
-    # Otherwise stream from LLM
-    for chunk in model.stream(messages):
-        # Anthropic returns tokens in chunk.content
-        if hasattr(chunk, "content") and chunk.content:
-            token = chunk.content
-        elif hasattr(chunk, "delta") and chunk.delta:  # fallback
-            token = chunk.delta
-        else:
-            token = ""
-
-        full_response += token
-        response_placeholder.markdown(full_response)
-
-    return full_response
+def stream_llm_response(messages):
+    """Stream response from the LLM given a list of messages."""
+    response_text = ""
+    with st.chat_message("assistant"):
+        response_box = st.empty()
+        for chunk in model.stream(messages):
+            if chunk.content:
+                response_text += chunk.content
+                response_box.markdown(response_text)
+    return response_text
 
 

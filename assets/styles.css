@@ -1,11 +1,64 @@
+/* Headings */
 .big-font {
-    font-size: 40px !important;
+    font-size: 42px !important;
     text-align: center;
-    font-weight: bold;
+    font-weight: 800;
+    /* Default fallback color (shows if gradient isn't supported) */
+    color: #00c6ff;  
+
+    /* Gradient text for WebKit browsers */
+    background: linear-gradient(90deg, #00c6ff, #0072ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+
+    /* Experimental support for Firefox */
+    background-clip: text;
+    color: transparent;
+
+    text-shadow: 0 0 10px rgba(0, 183, 255, 0.6);
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+    transition: transform 0.3s ease-in-out, text-shadow 0.3s ease-in-out;
 }
 
+.big-font:hover {
+    transform: scale(1.05);
+    text-shadow: 0 0 18px rgba(0, 183, 255, 0.9);
+}
+
+
+/* Subtext */
 .small-font {
-    font-size: 20px !important;
+    font-size: 18px !important;
     text-align: center;
-    color: rgb(171, 170, 170);
+    color: #b0b0b0;
+    font-style: italic;
+    letter-spacing: 1px;
+    text-shadow: 0 0 6px rgba(255, 255, 255, 0.1);
+    transition: color 0.3s ease-in-out, text-shadow 0.3s ease-in-out;
+}
+
+.small-font:hover {
+    color: #ffffff;
+    text-shadow: 0 0 10px rgba(0, 183, 255, 0.5);
+}
+
+/* Buttons */
+.stButton > button {
+    background: linear-gradient(90deg, #00c6ff, #0072ff);
+    color: white !important;
+    font-size: 18px;
+    font-weight: 600;
+    border-radius: 10px;
+    padding: 10px 20px;
+    border: none;
+    box-shadow: 0 0 10px rgba(0, 183, 255, 0.5);
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+}
+
+.stButton > button:hover {
+    background: linear-gradient(90deg, #0072ff, #00c6ff);
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(0, 183, 255, 0.9);
 }

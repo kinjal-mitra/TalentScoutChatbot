@@ -2,7 +2,8 @@ import streamlit as st
 from langchain_anthropic import ChatAnthropic
 from dotenv import load_dotenv
 from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
-from config import QUESTIONS
+from questions import QUESTIONS
+from config import NUMBER_OF_QUESTIONS
 from utils import get_llm_reply, extract_data_from_session_state, stream_llm_response
 
 #****************************** Set-up LLM and Utility Function ********************************
@@ -121,45 +122,41 @@ elif st.session_state.stage == "interview":
                 st.session_state.active = True
                 st.session_state.step = 1
 
-                # Generate first question with streaming
+                # Generate first question using get_llm_reply
                 with st.spinner("Generating first question..."):
-                    response_text = ""
-                    with st.chat_message("assistant"):
-                        response_box = st.empty()
-                        for chunk in chat_model.stream(st.session_state.messages + [
-                            HumanMessage(content=f"Tech stack: {peronsal_details.techstack}, "
-                                                 f"Years Of Experience: {peronsal_details.experience}, "
-                                                 f"Desired Position: {peronsal_details.positions}. "
-                                                 "Start the Q&A. Ask the first question.")
-                        ]):
-                            if chunk.content:
-                                response_text += chunk.content
-                                response_box.markdown(response_text)
+                    response_text = get_llm_reply(
+                        message_history=[
+                            {"role": "user", "content": f"Tech stack: {peronsal_details.techstack}, "
+                                                        f"Years Of Experience: {peronsal_details.experience}, "
+                                                        f"Desired Position: {peronsal_details.positions}. "
+                                                        "Start the Q&A."}
+                        ],
+                        next_question="Ask the first interview question."
+                    )
 
                 response = AIMessage(content=response_text)
                 st.session_state.messages.append(response)
 
             # Handle Q&A flow
-            elif st.session_state.active and st.session_state.step <= 5:
-                st.session_state.messages.append(HumanMessage(content=user_input))
+            elif st.session_state.active and st.session_state.step <= NUMBER_OF_QUESTIONS:
+                #st.session_state.messages.append(HumanMessage(content=user_input))
 
-                if st.session_state.step == 5:
+                if st.session_state.step == NUMBER_OF_QUESTIONS:
                     # Last question answered → Thank you
                     with st.chat_message("assistant"):
                         st.markdown("✅ Thank you for your responses. Interview complete!")
                     st.session_state.done = True
                 else:
-                    # Continue with next question with streaming
+                    # Continue with next question using get_llm_reply
                     with st.spinner("Generating next question..."):
-                        response_text = ""
-                        with st.chat_message("assistant"):
-                            response_box = st.empty()
-                            for chunk in chat_model.stream(st.session_state.messages + [
-                                HumanMessage(content=f"Continue the interview. Ask question {st.session_state.step+1} of 5.")
-                            ]):
-                                if chunk.content:
-                                    response_text += chunk.content
-                                    response_box.markdown(response_text)
+                        response_text = get_llm_reply(
+                            message_history=[
+                                {"role": "user", "content": msg.content} if isinstance(msg, HumanMessage)
+                                else {"role": "assistant", "content": msg.content}
+                                for msg in st.session_state.messages
+                            ],
+                            next_question=f"Ask question {st.session_state.step+1} of {NUMBER_OF_QUESTIONS}."
+                        )
 
                     response = AIMessage(content=response_text)
                     st.session_state.messages.append(response)
@@ -169,6 +166,7 @@ elif st.session_state.stage == "interview":
         if st.button("I am Done"):
             st.session_state.stage = "thankyou"
             st.rerun()
+
 
 #****************************** THANK YOU PAGE ***********************************************
 elif st.session_state.stage == "thankyou":
